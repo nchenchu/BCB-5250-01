@@ -1,0 +1,74 @@
+---
+title: "PCA LAB"
+author: "Navyasree Chenchu"
+date: "2024-04-23"
+output: html_document
+---
+
+```{r PCA LAB, message=FALSE, warning=FALSE, paged.print=TRUE}
+
+
+#Reading the data 
+data <- read.csv("C:/Users/DELL/Downloads/data.csv", row.names = 1)
+
+#load the library
+library("factoextra")
+library("FactoMineR")
+
+#standardize the values then creates a new principal component table
+pca.data <- PCA(data[,-1], scale.unit = TRUE, graph = FALSE)
+
+#we need to use the fviz_eig() function.
+fviz_eig(pca.data, addlabels = TRUE, ylim = c(0, 70))
+
+# understand the correlation between the samples
+fviz_pca_var(pca.data, col.var = "cos2",
+             gradient.cols = c("#FFCC00", "#CC9933", "#660033", "#330033"),
+             repel = TRUE)
+
+#start by plotting the cell types 
+pca.data <- PCA(t(data[,-1]), scale.unit = TRUE, graph = FALSE)
+
+#visualization
+fviz_pca_ind(pca.data, col.ind = "cos2", 
+             gradient.cols = c("#FFCC00", "#CC9933", "#660033", "#330033"), 
+             repel = TRUE)
+
+#load the library
+library(ggpubr) 
+
+
+a <- fviz_pca_ind(pca.data, col.ind = "cos2", 
+                  gradient.cols = c("#FFCC00", "#CC9933", "#660033", "#330033"), 
+                  repel = TRUE)
+
+#we can use ggpar() 
+ggpar(a,
+      title = "Principal Component Analysis",
+      xlab = "PC1", ylab = "PC2",
+      legend.title = "Cos2", legend.position = "top",
+      ggtheme = theme_minimal())
+
+#plot the gene
+pca.data <- PCA(data[,-1], scale.unit = TRUE,ncp = 2, graph = FALSE)
+
+#color the gene
+data$lineage <- as.factor(data$lineage)
+
+
+#load the library
+library(RColorBrewer)
+
+nb.cols <- 3
+mycolors <- colorRampPalette(brewer.pal(3, "Set1"))(nb.cols)
+
+#Lineage column
+a <- fviz_pca_ind(pca.data, col.ind = data$lineage,
+                  palette = mycolors, addEllipses = TRUE)
+
+#we will use the ggpar() function to add labels
+ggpar(a,
+      title = "Principal Component Analysis",
+      xlab = "PC1", ylab = "PC2",
+      legend.title = "Cell type", legend.position = "top",
+      ggtheme = theme_minimal())
